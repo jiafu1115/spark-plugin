@@ -1,0 +1,36 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <!--
+    This Jelly script is used to produce the global configuration option.
+
+    Jenkins uses a set of tag libraries to provide uniformity in forms.
+    To determine where this tag is defined, first check the namespace URI,
+    and then look under $JENKINS/views/. For example, <f:section> is defined
+    in $JENKINS/views/lib/form/section.jelly.
+
+    It's also often useful to just check other similar scripts to see what
+    tags they use. Views are always organized according to its owner class,
+    so it should be straightforward to find them.
+  -->
+  <f:section title="Cisco Spark Setting">
+    <f:entry title="Cisco Spark Room List :">
+      <f:repeatable var="sparkRoom" items="${descriptor.sparkRooms}">
+        <table width="50%">
+          <f:entry title="ID"  >
+            <f:textbox name="spark.room.name" value="${sparkRoom.name}" checkUrl="'${rootURL}/descriptor/SparkNotifier/nameCheck?name='+escape(this.value)"/>
+          </f:entry>
+          <f:entry title="Room ID"  >
+            <f:textbox name="spark.room.roomid" value="${sparkRoom.roomid}" checkUrl="'${rootURL}/descriptor/SparkNotifier/sparkRoomIdCheck?sparkRoomId='+escape(this.value)"/>
+          </f:entry>
+          <f:entry title="Bearer Token"  >
+            <input class="setting-input" name="spark.room.token" type="password" value="${sparkRoom.token}" checkUrl="'${rootURL}/descriptor/SparkNotifier/tokenCheck?token='+escape(this.value)"/>
+          </f:entry>
+          <f:entry title="">
+          <div align="right">
+            <f:repeatableDeleteButton />
+           </div>
+        </f:entry>
+        </table>
+      </f:repeatable>
+    </f:entry>
+  </f:section>
+</j:jelly>
