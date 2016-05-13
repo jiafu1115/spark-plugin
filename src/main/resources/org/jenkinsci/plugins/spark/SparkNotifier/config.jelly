@@ -23,7 +23,7 @@
               </select>
             </f:entry>
   <f:entry title="Notification Content" field="publishContent">
-    <f:textbox />
+    <f:textbox default="${DEFAULT_CONTENT}" />
   </f:entry>
 </j:jelly>
 
