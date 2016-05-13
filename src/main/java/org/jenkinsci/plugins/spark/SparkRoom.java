@@ -78,7 +78,7 @@ public class SparkRoom implements Serializable{
 
 	@Override
 	public String toString() {
-		return "SparkRoom [name=" + name + ", roomid=" + roomid + ", token=" + token + "]";
+		return "SparkRoom [name=" + name + ", room id=" + roomid + ", token=******]";
 	}
 
 }

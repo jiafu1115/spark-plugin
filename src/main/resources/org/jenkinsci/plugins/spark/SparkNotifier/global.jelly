@@ -15,7 +15,7 @@
     <f:entry title="Cisco Spark Room List :">
       <f:repeatable var="sparkRoom" items="${descriptor.sparkRooms}">
         <table width="50%">
-          <f:entry title="ID"  >
+          <f:entry title="Name"  >
             <f:textbox name="spark.room.name" value="${sparkRoom.name}" checkUrl="'${rootURL}/descriptor/SparkNotifier/nameCheck?name='+escape(this.value)"/>
           </f:entry>
           <f:entry title="Room ID"  >

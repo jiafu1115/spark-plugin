@@ -19,7 +19,7 @@
                 </j:forEach>
               </select>
             </f:entry>
-  <f:entry title="Publish Content" field="publishContent">
+  <f:entry title="Notification Content" field="publishContent">
     <f:textbox />
   </f:entry>
 </j:jelly>
