@@ -14,8 +14,8 @@ public class SparkRoom implements Serializable{
 
     /**
      * @param id
-     * @param username
-     * @param password
+     * @param roomid spark room id
+     * @param token bearer token
      */
     @DataBoundConstructor
     public SparkRoom(String name, String roomid, String token) {

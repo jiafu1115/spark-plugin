@@ -35,8 +35,10 @@ import org.kohsuke.stapler.StaplerRequest;
 
 public class SparkNotifier extends Notifier {
 
-    public static final String DEFAULT_CONTENT_KEY = "${DEFAULT_CONTENT}";
+	public static final String DEFAULT_CONTENT_KEY = "${DEFAULT_CONTENT}";
     public static final String DEFAULT_CONTENT_VALUE = "${BUILD_STATUS}  ${JOB_NAME}:${BUILD_NUMBER}  ${JOB_URL}";
+
+    private static final String CISCO_SPARK_PLUGIN_NAME = "[Cisco Spark Plugin]";
 
     private final boolean disable;
     private final String sparkRoomName;
@@ -47,7 +49,7 @@ public class SparkNotifier extends Notifier {
         this.disable = disable;
         this.sparkRoomName = sparkRoomName;
         this.publishContent = publishContent;
-        System.out.println("save:");
+        System.out.println(CISCO_SPARK_PLUGIN_NAME + "save configure:");
         System.out.println(disable);
         System.out.println(sparkRoomName);
         System.out.println(publishContent);
@@ -79,32 +81,32 @@ public class SparkNotifier extends Notifier {
 
         PrintStream logger = listener.getLogger();
         if (!disable) {
-            logger.println("[Cisco Spark Plugin]================[start]=================");
+            logger.println(CISCO_SPARK_PLUGIN_NAME + "================[start]=================");
             try {
                 DescriptorImpl descriptor = getDescriptor();
                 SparkRoom sparkRoom = descriptor.getSparkRoom(sparkRoomName);
 
-                logger.println("[Cisco Spark Plugin][Expand content]Before Expand: " + publishContent);
+                logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Before Expand: " + publishContent);
                 String publishContentAfterInitialExpand=publishContent;
                 if(publishContent.contains(DEFAULT_CONTENT_KEY)){
                     publishContentAfterInitialExpand=publishContent.replace(DEFAULT_CONTENT_KEY, DEFAULT_CONTENT_VALUE);
                 }
                 String expandAll = TokenMacro.expandAll(build, listener, publishContentAfterInitialExpand, false, getPrivateMacros());
-                logger.println("[Cisco Spark Plugin][Expand content]After Expand: " + expandAll);
+                logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]After Expand: " + expandAll);
 
-                logger.println("[Cisco Spark Plugin][Publish Content][begin]use:" + sparkRoom);
+                logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][begin]use:" + sparkRoom);
                 SparkClient.sent(sparkRoom, expandAll);
-                logger.println("[Cisco Spark Plugin][Publish Content][end]");
+                logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][end]");
 
-                logger.println("[Cisco Spark Plugin]================[end][success]=================");
+                logger.println(CISCO_SPARK_PLUGIN_NAME + "================[end][success]=================");
             } catch (Exception e) {
-                logger.println("[Cisco Spark Plugin]" + e.getMessage());
-                logger.println("[Cisco Spark Plugin]" + Arrays.toString(e.getStackTrace()));
-                logger.println("[Cisco Spark Plugin]================[end][failure]=================");
+                logger.println(CISCO_SPARK_PLUGIN_NAME + e.getMessage());
+                logger.println(CISCO_SPARK_PLUGIN_NAME + Arrays.toString(e.getStackTrace()));
+                logger.println(CISCO_SPARK_PLUGIN_NAME + "================[end][failure]=================");
             }
 
         } else {
-            logger.println("[Cisco Spark Plugin]================[skiped]=================");
+            logger.println(CISCO_SPARK_PLUGIN_NAME + "================[skiped]=================");
         }
 
         return true;
@@ -140,7 +142,7 @@ public class SparkNotifier extends Notifier {
      *
      * <p>
      * See
-     * <tt>src/main/resources/hudson/plugins/spark/SparkNotifier/*.jelly</tt>
+     * <tt>src/main/resources/jenkinsci/plugins/spark/SparkNotifier/*.jelly</tt>
      * for the actual HTML fragment for the configuration screen.
      */
     @Extension
@@ -224,7 +226,7 @@ public class SparkNotifier extends Notifier {
          }
 
         public FormValidation doSparkRoomIdCheck(@QueryParameter String sparkRoomId) throws IOException, ServletException {
-            return returnVerify(sparkRoomId,"Spark Room Id");
+            return returnVerify(sparkRoomId,"spark room ID");
         }
 
         private FormValidation returnVerify(String value, String message) {
