@@ -12,6 +12,9 @@
  <f:entry title="Disable" field="disable">
         <f:checkbox  checked="${instance.disable}"/>
  </f:entry>
+ <f:entry title="Not Notify When Success" field="notnotifyifsuccess">
+        <f:checkbox  checked="${instance.notnotifyifsuccess}"/>
+ </f:entry>
  <f:entry title="Cisco Spark Room" field="sparkRoomName">
         <select class="setting-input" name="sparkRoomName">
                <j:forEach var="sparkRoom" items="${descriptor.sparkRooms}">

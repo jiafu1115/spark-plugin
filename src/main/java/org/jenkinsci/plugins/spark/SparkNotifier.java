@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.spark;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
@@ -41,16 +42,19 @@ public class SparkNotifier extends Notifier {
     private static final String CISCO_SPARK_PLUGIN_NAME = "[Cisco Spark Plugin]";
 
     private final boolean disable;
+    private final boolean notnotifyifsuccess;
     private final String sparkRoomName;
     private final String publishContent;
 
     @DataBoundConstructor
-    public SparkNotifier(boolean disable, String sparkRoomName, String publishContent) {
+    public SparkNotifier(boolean disable, boolean notnotifyifsuccess, String sparkRoomName, String publishContent) {
         this.disable = disable;
+        this.notnotifyifsuccess = notnotifyifsuccess;
         this.sparkRoomName = sparkRoomName;
         this.publishContent = publishContent;
         System.out.println(CISCO_SPARK_PLUGIN_NAME + "save configure:");
         System.out.println(disable);
+        System.out.println(notnotifyifsuccess);
         System.out.println(sparkRoomName);
         System.out.println(publishContent);
     }
@@ -69,6 +73,10 @@ public class SparkNotifier extends Notifier {
     public boolean isDisable() {
         return disable;
     }
+    
+    public boolean isNotnotifyifsuccess() {
+        return notnotifyifsuccess;
+    }
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
@@ -78,39 +86,50 @@ public class SparkNotifier extends Notifier {
 
         // This also shows how you can consult the global configuration of the
         // builder
-
+    	build.getResult();
+    	
         PrintStream logger = listener.getLogger();
-        if (!disable) {
-            logger.println(CISCO_SPARK_PLUGIN_NAME + "================[start]=================");
-            try {
-                DescriptorImpl descriptor = getDescriptor();
-                SparkRoom sparkRoom = descriptor.getSparkRoom(sparkRoomName);
-
-                logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Before Expand: " + publishContent);
-                String publishContentAfterInitialExpand=publishContent;
-                if(publishContent.contains(DEFAULT_CONTENT_KEY)){
-                    publishContentAfterInitialExpand=publishContent.replace(DEFAULT_CONTENT_KEY, DEFAULT_CONTENT_VALUE);
-                }
-                String expandAll = TokenMacro.expandAll(build, listener, publishContentAfterInitialExpand, false, getPrivateMacros());
-                logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]After Expand: " + expandAll);
-
-                logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][begin]use:" + sparkRoom);
-                SparkClient.sent(sparkRoom, expandAll);
-                logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][end]");
-
-                logger.println(CISCO_SPARK_PLUGIN_NAME + "================[end][success]=================");
-            } catch (Exception e) {
-                logger.println(CISCO_SPARK_PLUGIN_NAME + e.getMessage());
-                logger.println(CISCO_SPARK_PLUGIN_NAME + Arrays.toString(e.getStackTrace()));
-                logger.println(CISCO_SPARK_PLUGIN_NAME + "================[end][failure]=================");
-            }
-
-        } else {
-            logger.println(CISCO_SPARK_PLUGIN_NAME + "================[skiped]=================");
+        if(disable){
+            logger.println(CISCO_SPARK_PLUGIN_NAME + "================[skiped: no need to notify due to the plugin disabled]=================");
+            return true;
         }
-
+        
+        if(notnotifyifsuccess){
+        	if(build.getResult() == Result.SUCCESS)
+        		logger.println(CISCO_SPARK_PLUGIN_NAME + "================[skiped: no need to notify due to success]=================");
+            return true;
+        }
+        
+        notify(build, listener, logger);
+        
         return true;
     }
+
+	private void notify(AbstractBuild build, BuildListener listener, PrintStream logger) {
+		logger.println(CISCO_SPARK_PLUGIN_NAME + "================[start]=================");
+		try {
+		    DescriptorImpl descriptor = getDescriptor();
+		    SparkRoom sparkRoom = descriptor.getSparkRoom(sparkRoomName);
+
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Before Expand: " + publishContent);
+		    String publishContentAfterInitialExpand=publishContent;
+		    if(publishContent.contains(DEFAULT_CONTENT_KEY)){
+		        publishContentAfterInitialExpand=publishContent.replace(DEFAULT_CONTENT_KEY, DEFAULT_CONTENT_VALUE);
+		    }
+		    String expandAll = TokenMacro.expandAll(build, listener, publishContentAfterInitialExpand, false, getPrivateMacros());
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]After Expand: " + expandAll);
+
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][begin]use:" + sparkRoom);
+		    SparkClient.sent(sparkRoom, expandAll);
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][end]");
+
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + "================[end][success]=================");
+		} catch (Exception e) {
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + e.getMessage());
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + Arrays.toString(e.getStackTrace()));
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + "================[end][failure]=================");
+		}
+	}
 
     private static List<TokenMacro> getPrivateMacros() {
         List<TokenMacro> macros = new ArrayList<TokenMacro>();
