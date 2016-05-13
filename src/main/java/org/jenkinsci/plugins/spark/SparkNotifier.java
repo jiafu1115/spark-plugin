@@ -116,8 +116,10 @@ public class SparkNotifier extends Notifier {
 		    if(publishContent.contains(DEFAULT_CONTENT_KEY)){
 		        publishContentAfterInitialExpand=publishContent.replace(DEFAULT_CONTENT_KEY, DEFAULT_CONTENT_VALUE);
 		    }
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Expand: " + publishContentAfterInitialExpand);
+
 		    String expandAll = TokenMacro.expandAll(build, listener, publishContentAfterInitialExpand, false, getPrivateMacros());
-		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]After Expand: " + expandAll);
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Expand: " + expandAll);
 
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][begin]use:" + sparkRoom);
 		    SparkClient.sent(sparkRoom, expandAll);
