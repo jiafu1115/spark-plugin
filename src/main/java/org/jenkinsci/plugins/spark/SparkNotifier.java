@@ -107,7 +107,6 @@ public class SparkNotifier extends Notifier {
 		try {
 		    DescriptorImpl descriptor = getDescriptor();
 		    SparkRoom sparkRoom = descriptor.getSparkRoom(sparkRoomName);
-		    
 		    sendAtScmCommiters(build, sparkRoom, logger);
 		    sendPublishContent(build, listener, logger, sparkRoom);
 		    sendTestResultIfExisted(build, sparkRoom, logger);
@@ -124,7 +123,7 @@ public class SparkNotifier extends Notifier {
 	private void sendPublishContent(AbstractBuild build, BuildListener listener, PrintStream logger,
 			SparkRoom sparkRoom) throws MacroEvaluationException, IOException, InterruptedException, Exception {
 		logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Before Expand: " + publishContent);
-		String publishContentAfterInitialExpand=publishContent;
+		String publishContentAfterInitialExpand = publishContent;
 		if(publishContent.contains(DEFAULT_CONTENT_KEY)){
 		    publishContentAfterInitialExpand=publishContent.replace(DEFAULT_CONTENT_KEY, DEFAULT_CONTENT_VALUE);
 		}
@@ -148,24 +147,31 @@ public class SparkNotifier extends Notifier {
 		}
 		for(Object entry:items){
 	    	ChangeLogSet.Entry entryCasted = (ChangeLogSet.Entry)entry;
-			String content = "    "+ entryCasted.getAffectedFiles()+ " " +entryCasted.getAuthor();
+			String content = "        "+ entryCasted.getAuthor() + ":" +entryCasted.getAffectedPaths();
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]" + content);
 			SparkClient.sent(sparkRoom, content);
  		}	
 	}
 	
+	/**
+	 * FIXME
+	 * @param build
+	 * @param sparkRoom
+	 * @param logger
+	 * @throws Exception
+	 */
 	private void sendTestResultIfExisted(AbstractBuild build, SparkRoom sparkRoom, PrintStream logger) throws Exception {
 		try{
-			AbstractTestResultAction testResultAction = build.getAggregatedTestResultAction();
+			AbstractTestResultAction testResultAction = build.getTestResultAction();
 			if(testResultAction!=null){
 			    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]test results:");
 				SparkClient.sent(sparkRoom, "test results:");
-				SparkClient.sent(sparkRoom, " total:" + testResultAction.getTotalCount());
-				SparkClient.sent(sparkRoom, " failed:" + testResultAction.getFailCount());
-				SparkClient.sent(sparkRoom, " skiped:" + testResultAction.getSkipCount());
+				SparkClient.sent(sparkRoom, "        total:" + testResultAction.getTotalCount());
+				SparkClient.sent(sparkRoom, "        failed:" + testResultAction.getFailCount());
+				SparkClient.sent(sparkRoom, "        skiped:" + testResultAction.getSkipCount());
 				List failedTests = testResultAction.getFailedTests();
 				if(failedTests.size()>0)
-					SparkClient.sent(sparkRoom, " failed test cases:" + failedTests);
+					SparkClient.sent(sparkRoom, "        failed test cases:" + failedTests);
 			}
 		}catch(Throwable throwable){
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + throwable.getMessage());
