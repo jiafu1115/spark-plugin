@@ -174,7 +174,7 @@ public class SparkNotifier extends Notifier {
 	 */
 	private void sendTestResultIfExisted(AbstractBuild build, SparkRoom sparkRoom, PrintStream logger) throws Exception {
 		try{
-			AbstractTestResultAction testResultAction = build.getTestResultAction();
+			AbstractTestResultAction testResultAction = build.getAction(AbstractTestResultAction.class);
 			if(testResultAction!=null){
 			    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]test results:");
 				SparkClient.sent(sparkRoom, "test results:");
