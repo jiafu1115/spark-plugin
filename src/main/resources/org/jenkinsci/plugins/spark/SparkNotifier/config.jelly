@@ -15,6 +15,9 @@
  <f:entry title="Not Notify When Success" field="notnotifyifsuccess">
         <f:checkbox  checked="${instance.notnotifyifsuccess}"/>
  </f:entry>
+ <f:entry title="Attach Code Changes Info" field="attachcodechange">
+        <f:checkbox  checked="${instance.attachcodechange}"/>
+ </f:entry>
  <f:entry title="Cisco Spark Room" field="sparkRoomName">
         <select class="setting-input" name="sparkRoomName">
                <j:forEach var="sparkRoom" items="${descriptor.sparkRooms}">
@@ -23,7 +26,7 @@
               </select>
             </f:entry>
   <f:entry title="Notification Content" field="publishContent">
-    <f:textbox default="${DEFAULT_CONTENT}" />
+    <f:textbox default="$${DEFAULT_CONTENT}" />
   </f:entry>
 </j:jelly>
 

@@ -48,20 +48,18 @@ public class SparkNotifier extends Notifier {
 
     private final boolean disable;
     private final boolean notnotifyifsuccess;
+    private final boolean attachcodechange;
     private final String sparkRoomName;
     private final String publishContent;
+    
 
     @DataBoundConstructor
-    public SparkNotifier(boolean disable, boolean notnotifyifsuccess, String sparkRoomName, String publishContent) {
+    public SparkNotifier(boolean disable, boolean notnotifyifsuccess, boolean attachcodechange, String sparkRoomName, String publishContent) {
         this.disable = disable;
         this.notnotifyifsuccess = notnotifyifsuccess;
+        this.attachcodechange = attachcodechange;
         this.sparkRoomName = sparkRoomName;
         this.publishContent = publishContent;
-        System.out.println(CISCO_SPARK_PLUGIN_NAME + "save configure:");
-        System.out.println(disable);
-        System.out.println(notnotifyifsuccess);
-        System.out.println(sparkRoomName);
-        System.out.println(publishContent);
     }
 
     /**
@@ -115,7 +113,9 @@ public class SparkNotifier extends Notifier {
 		    sendAtScmCommiters(build, sparkRoom, logger);
 		    sendPublishContent(build, listener, logger, sparkRoom);
 		    sendTestResultIfExisted(build, sparkRoom, logger);
-		    sendSCMChanges(build, sparkRoom, logger);	
+		    
+		    if(attachcodechange)
+		    	sendSCMChanges(build, sparkRoom, logger);	
 
 			SparkClient.sent(sparkRoom, "[message from cisco spark plugin for jenkins]");
 
