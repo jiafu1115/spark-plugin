@@ -148,7 +148,7 @@ public class SparkNotifier extends Notifier {
 		}
 		for(Object entry:items){
 	    	ChangeLogSet.Entry entryCasted = (ChangeLogSet.Entry)entry;
-			String content = "    "+ entryCasted.getAffectedPaths()+ " " +entryCasted.getAuthor();
+			String content = "    "+ entryCasted.getAffectedFiles()+ " " +entryCasted.getAuthor();
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]" + content);
 			SparkClient.sent(sparkRoom, content);
  		}	
@@ -156,7 +156,7 @@ public class SparkNotifier extends Notifier {
 	
 	private void sendTestResultIfExisted(AbstractBuild build, SparkRoom sparkRoom, PrintStream logger) throws Exception {
 		try{
-			AbstractTestResultAction testResultAction = build.getTestResultAction();
+			AbstractTestResultAction testResultAction = build.getAggregatedTestResultAction();
 			if(testResultAction!=null){
 			    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]test results:");
 				SparkClient.sent(sparkRoom, "test results:");
