@@ -155,11 +155,11 @@ public class SparkNotifier extends Notifier {
 		Object[] items = changeSet.getItems();
 		if(items.length > 0){
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]changes:");
-			SparkClient.sent(sparkRoom, "changes:");
+			SparkClient.sent(sparkRoom, "[changes:]");
 		}
 		for(Object entry:items){
 	    	ChangeLogSet.Entry entryCasted = (ChangeLogSet.Entry)entry;
-			String content = "        "+ entryCasted.getAuthor() + ":" +entryCasted.getAffectedPaths();
+			String content = "          "+ entryCasted.getAuthor() + ":" +entryCasted.getAffectedPaths();
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]" + content);
 			SparkClient.sent(sparkRoom, content);
  		}	
@@ -177,13 +177,14 @@ public class SparkNotifier extends Notifier {
 			AbstractTestResultAction testResultAction = build.getAction(AbstractTestResultAction.class);
 			if(testResultAction!=null){
 			    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]test results:");
-				SparkClient.sent(sparkRoom, "test results:");
-				SparkClient.sent(sparkRoom, "        total:" + testResultAction.getTotalCount());
-				SparkClient.sent(sparkRoom, "        failed:" + testResultAction.getFailCount());
-				SparkClient.sent(sparkRoom, "        skiped:" + testResultAction.getSkipCount());
-				List failedTests = testResultAction.getFailedTests();
+				SparkClient.sent(sparkRoom, "[test results:]");
+				int totalCount = testResultAction.getTotalCount();
+				int failCount = testResultAction.getFailCount();
+				int skipCount = testResultAction.getSkipCount();
+				SparkClient.sent(sparkRoom, String.format("          total:%d, failed:%d, skiped:%d", totalCount,failCount,skipCount)); 
+				/*List failedTests = testResultAction.getFailedTests();
 				if(failedTests.size()>0)
-					SparkClient.sent(sparkRoom, "        failed test cases:" + failedTests);
+					SparkClient.sent(sparkRoom, "        failed test cases:" + failedTests);*/
 			}
 		}catch(Throwable throwable){
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + throwable.getMessage());
