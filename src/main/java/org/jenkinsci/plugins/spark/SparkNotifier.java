@@ -4,12 +4,14 @@ import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.Result;
+import hudson.scm.ChangeLogSet;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import hudson.tasks.test.AbstractTestResultAction;
 import hudson.util.CopyOnWriteList;
 import hudson.util.FormValidation;
 
@@ -17,7 +19,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 
@@ -28,6 +32,7 @@ import net.sf.json.JSONObject;
 
 import org.jenkinsci.plugins.spark.client.SparkClient;
 import org.jenkinsci.plugins.spark.token.SparkToken;
+import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -80,14 +85,6 @@ public class SparkNotifier extends Notifier {
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
-        // This is where you 'build' the project.
-        // Since this is a dummy, we just say 'hello world' and call that a
-        // build.
-
-        // This also shows how you can consult the global configuration of the
-        // builder
-    	build.getResult();
-    	
         PrintStream logger = listener.getLogger();
         if(disable){
             logger.println(CISCO_SPARK_PLUGIN_NAME + "================[skiped: no need to notify due to the plugin disabled]=================");
@@ -110,20 +107,10 @@ public class SparkNotifier extends Notifier {
 		try {
 		    DescriptorImpl descriptor = getDescriptor();
 		    SparkRoom sparkRoom = descriptor.getSparkRoom(sparkRoomName);
-
-		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Before Expand: " + publishContent);
-		    String publishContentAfterInitialExpand=publishContent;
-		    if(publishContent.contains(DEFAULT_CONTENT_KEY)){
-		        publishContentAfterInitialExpand=publishContent.replace(DEFAULT_CONTENT_KEY, DEFAULT_CONTENT_VALUE);
-		    }
-		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Expand: " + publishContentAfterInitialExpand);
-
-		    String expandAll = TokenMacro.expandAll(build, listener, publishContentAfterInitialExpand, false, getPrivateMacros());
-		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Expand: " + expandAll);
-
-		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][begin]use:" + sparkRoom);
-		    SparkClient.sent(sparkRoom, expandAll);
-		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][end]");
+		    
+		    sendAtScmCommiters(build, sparkRoom, logger);
+		    sendPublishContent(build, listener, logger, sparkRoom);
+		    sendSCMChanges(build, sparkRoom, logger);		    
 
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + "================[end][success]=================");
 		} catch (Exception e) {
@@ -131,6 +118,70 @@ public class SparkNotifier extends Notifier {
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + Arrays.toString(e.getStackTrace()));
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + "================[end][failure]=================");
 		}
+	}
+
+	private void sendPublishContent(AbstractBuild build, BuildListener listener, PrintStream logger,
+			SparkRoom sparkRoom) throws MacroEvaluationException, IOException, InterruptedException, Exception {
+		logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Before Expand: " + publishContent);
+		String publishContentAfterInitialExpand=publishContent;
+		if(publishContent.contains(DEFAULT_CONTENT_KEY)){
+		    publishContentAfterInitialExpand=publishContent.replace(DEFAULT_CONTENT_KEY, DEFAULT_CONTENT_VALUE);
+		}
+		logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Expand: " + publishContentAfterInitialExpand);
+
+		String expandAll = TokenMacro.expandAll(build, listener, publishContentAfterInitialExpand, false, getPrivateMacros());
+		logger.println(CISCO_SPARK_PLUGIN_NAME + "[Expand content]Expand: " + expandAll);
+
+		logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][begin]use:" + sparkRoom);
+		SparkClient.sent(sparkRoom, expandAll);
+	    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][end]");
+	}
+	
+ 
+	
+	private void sendSCMChanges(AbstractBuild build, SparkRoom sparkRoom, PrintStream logger) throws Exception {
+		ChangeLogSet<ChangeLogSet.Entry> changeSet = build.getChangeSet();
+		Object[] items = changeSet.getItems();
+		if(items.length > 0){
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]changes:");
+			SparkClient.sent(sparkRoom, "changes:");
+		}
+		for(Object entry:items){
+	    	ChangeLogSet.Entry entryCasted = (ChangeLogSet.Entry)entry;
+			String content = "    "+ entryCasted.getAffectedPaths()+ " " +entryCasted.getAuthor();
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]" + content);
+			SparkClient.sent(sparkRoom, content);
+ 		}	
+	}
+	
+	private void sendTestResultIfExisted(AbstractBuild build, SparkRoom sparkRoom, PrintStream logger) throws Exception {
+		try{
+			AbstractTestResultAction testResultAction = build.getTestResultAction();
+			if(testResultAction!=null){
+			    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]test results:");
+				SparkClient.sent(sparkRoom, "test results:");
+				SparkClient.sent(sparkRoom, " total:" + testResultAction.getTotalCount());
+				SparkClient.sent(sparkRoom, " failed:" + testResultAction.getFailCount());
+				SparkClient.sent(sparkRoom, " skiped:" + testResultAction.getSkipCount());
+				List failedTests = testResultAction.getFailedTests();
+				if(failedTests.size()>0)
+					SparkClient.sent(sparkRoom, " failed test cases:" + failedTests);
+			}
+		}catch(Throwable throwable){
+		    logger.println(CISCO_SPARK_PLUGIN_NAME + throwable.getMessage());
+		}
+	}
+
+	private void sendAtScmCommiters(AbstractBuild build, SparkRoom sparkRoom, PrintStream logger) throws Exception {
+		Set culprits = build.getCulprits();
+		Iterator iterator = culprits.iterator();
+		StringBuffer authors= new StringBuffer();
+		while(iterator.hasNext()){
+			Object next = iterator.next();
+			authors.append("@" + next.toString());
+		}
+	    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]" + authors.toString());
+		SparkClient.sent(sparkRoom, authors.toString());
 	}
 
     private static List<TokenMacro> getPrivateMacros() {

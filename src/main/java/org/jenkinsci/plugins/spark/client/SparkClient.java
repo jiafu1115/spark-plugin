@@ -12,6 +12,9 @@ public final class SparkClient {
 	private static HttpClient httpClient = new HttpClient();
  
     public static boolean sent(SparkRoom sparkRoom, String content) throws Exception {
+    	 if(content == null || content.isEmpty())
+    		 return true;
+    	 
          try {
             System.out.println(sparkRoom);
             System.out.println(content);
