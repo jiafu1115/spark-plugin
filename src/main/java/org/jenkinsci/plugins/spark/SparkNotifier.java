@@ -110,7 +110,8 @@ public class SparkNotifier extends Notifier {
 		    
 		    sendAtScmCommiters(build, sparkRoom, logger);
 		    sendPublishContent(build, listener, logger, sparkRoom);
-		    sendSCMChanges(build, sparkRoom, logger);		    
+		    sendTestResultIfExisted(build, sparkRoom, logger);
+		    sendSCMChanges(build, sparkRoom, logger);	
 
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + "================[end][success]=================");
 		} catch (Exception e) {
