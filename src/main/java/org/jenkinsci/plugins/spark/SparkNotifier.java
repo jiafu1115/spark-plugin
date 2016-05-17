@@ -135,7 +135,6 @@ public class SparkNotifier extends Notifier {
 
 		logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][begin]use:" + sparkRoom);
 		SparkClient.sent(sparkRoom, expandAll);
-	    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content][end]");
 	}
 	
  
@@ -179,7 +178,7 @@ public class SparkNotifier extends Notifier {
 		StringBuffer authors= new StringBuffer();
 		while(iterator.hasNext()){
 			Object next = iterator.next();
-			authors.append("@" + next.toString());
+			authors.append(" @" + next.toString());
 		}
 	    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]" + authors.toString());
 		SparkClient.sent(sparkRoom, authors.toString());
