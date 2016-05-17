@@ -105,12 +105,19 @@ public class SparkNotifier extends Notifier {
 	private void notify(AbstractBuild build, BuildListener listener, PrintStream logger) {
 		logger.println(CISCO_SPARK_PLUGIN_NAME + "================[start]=================");
 		try {
+			
+
 		    DescriptorImpl descriptor = getDescriptor();
 		    SparkRoom sparkRoom = descriptor.getSparkRoom(sparkRoomName);
+		    
+			SparkClient.sent(sparkRoom, "[message from cisco spark plugin for jenkins]");
+
 		    sendAtScmCommiters(build, sparkRoom, logger);
 		    sendPublishContent(build, listener, logger, sparkRoom);
 		    sendTestResultIfExisted(build, sparkRoom, logger);
 		    sendSCMChanges(build, sparkRoom, logger);	
+
+			SparkClient.sent(sparkRoom, "[message from cisco spark plugin for jenkins]");
 
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + "================[end][success]=================");
 		} catch (Exception e) {
