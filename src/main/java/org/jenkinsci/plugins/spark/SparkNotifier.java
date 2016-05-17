@@ -54,12 +54,13 @@ public class SparkNotifier extends Notifier {
     
 
     @DataBoundConstructor
-    public SparkNotifier(boolean disable, boolean notnotifyifsuccess, boolean attachcodechange, String sparkRoomName, String publishContent) {
+    public SparkNotifier(boolean disable, boolean notnotifyifsuccess, String sparkRoomName, String publishContent, boolean attachcodechange) {
         this.disable = disable;
         this.notnotifyifsuccess = notnotifyifsuccess;
         this.attachcodechange = attachcodechange;
         this.sparkRoomName = sparkRoomName;
         this.publishContent = publishContent;
+        System.out.println(this.toString());
     }
 
     /**
@@ -80,10 +81,16 @@ public class SparkNotifier extends Notifier {
     public boolean isNotnotifyifsuccess() {
         return notnotifyifsuccess;
     }
+    
+    public boolean isAttachcodechange() {
+        return attachcodechange;
+    }
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
         PrintStream logger = listener.getLogger();
+        logger.println(CISCO_SPARK_PLUGIN_NAME + this.toString());
+
         if(disable){
             logger.println(CISCO_SPARK_PLUGIN_NAME + "================[skiped: no need to notify due to the plugin disabled]=================");
             return true;
@@ -94,7 +101,7 @@ public class SparkNotifier extends Notifier {
         		logger.println(CISCO_SPARK_PLUGIN_NAME + "================[skiped: no need to notify due to success]=================");
             return true;
         }
-        
+
         notify(build, listener, logger);
         
         return true;
@@ -103,8 +110,6 @@ public class SparkNotifier extends Notifier {
 	private void notify(AbstractBuild build, BuildListener listener, PrintStream logger) {
 		logger.println(CISCO_SPARK_PLUGIN_NAME + "================[start]=================");
 		try {
-			
-
 		    DescriptorImpl descriptor = getDescriptor();
 		    SparkRoom sparkRoom = descriptor.getSparkRoom(sparkRoomName);
 		    
@@ -335,5 +340,13 @@ public class SparkNotifier extends Notifier {
         }
 
     }
+
+	@Override
+	public String toString() {
+		return "SparkNotifier [disable=" + disable + ", notnotifyifsuccess=" + notnotifyifsuccess
+				+ ", attachcodechange=" + attachcodechange + ", sparkRoomName=" + sparkRoomName + ", publishContent="
+				+ publishContent + "]";
+	}
+    
 
 }
