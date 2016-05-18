@@ -27,9 +27,14 @@
     <f:textbox default="$${DEFAULT_CONTENT}" />
   </f:entry>
   
+  <f:entry field="attachtestresult">
+  <f:checkbox name="attachtestresult" checked="${instance.attachtestresult}"/>
+  <label>Attach test results if existed</label>
+  </f:entry>
+  
   <f:entry field="attachcodechange">
   <f:checkbox name="attachcodechange" checked="${instance.attachcodechange}"/>
-  <label>Attach Code Changes Info</label>
+  <label>Attach code changes infos if existed</label>
   </f:entry>
   
 </j:jelly>

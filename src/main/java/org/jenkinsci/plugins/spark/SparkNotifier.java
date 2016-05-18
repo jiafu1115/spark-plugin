@@ -49,13 +49,15 @@ public class SparkNotifier extends Notifier {
     private final boolean disable;
     private final boolean notnotifyifsuccess;
     private final boolean attachcodechange;
+    private boolean attachtestresult = true;
     private final String sparkRoomName;
     private final String publishContent;
     
 
     @DataBoundConstructor
-    public SparkNotifier(boolean disable, boolean notnotifyifsuccess, String sparkRoomName, String publishContent, boolean attachcodechange) {
+    public SparkNotifier(boolean disable, boolean notnotifyifsuccess, String sparkRoomName, String publishContent, boolean attachtestresult, boolean attachcodechange) {
         this.disable = disable;
+        this.attachtestresult = attachtestresult;
         this.notnotifyifsuccess = notnotifyifsuccess;
         this.attachcodechange = attachcodechange;
         this.sparkRoomName = sparkRoomName;
@@ -84,6 +86,10 @@ public class SparkNotifier extends Notifier {
     
     public boolean isAttachcodechange() {
         return attachcodechange;
+    }
+    
+    public boolean isAttachtestresult() {
+        return attachtestresult;
     }
 
     @Override
@@ -117,7 +123,9 @@ public class SparkNotifier extends Notifier {
 
 		    sendAtScmCommiters(build, sparkRoom, logger);
 		    sendPublishContent(build, listener, logger, sparkRoom);
-		    sendTestResultIfExisted(build, sparkRoom, logger);
+		    
+		    if(attachtestresult)
+		    	sendTestResultIfExisted(build, sparkRoom, logger);
 		    
 		    if(attachcodechange)
 		    	sendSCMChanges(build, sparkRoom, logger);	
@@ -345,9 +353,10 @@ public class SparkNotifier extends Notifier {
 	@Override
 	public String toString() {
 		return "SparkNotifier [disable=" + disable + ", notnotifyifsuccess=" + notnotifyifsuccess
-				+ ", attachcodechange=" + attachcodechange + ", sparkRoomName=" + sparkRoomName + ", publishContent="
-				+ publishContent + "]";
+				+ ", attachcodechange=" + attachcodechange + ", attachtestresult=" + attachtestresult
+				+ ", sparkRoomName=" + sparkRoomName + ", publishContent=" + publishContent + "]";
 	}
-    
+
+
 
 }
