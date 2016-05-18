@@ -15,4 +15,4 @@ job configure:
 
 run sample:
 
-![spark](https://github.com/jiafu1115/spark-plugin/blob/master/spark.jpg)
+![spark](https://github.com/jiafu1115/spark-plugin/blob/master/sample.jpg)
