@@ -5,4 +5,4 @@ cisco spark plugin for jenkins
 
 ![job configure](https://github.com/jiafu1115/spark-plugin/blob/master/job_config.jpg)
 
-![sample](https://github.com/jiafu1115/spark-plugin/blob/master/sample.jpg)
+![spark](https://github.com/jiafu1115/spark-plugin/blob/master/spark.jpg)
