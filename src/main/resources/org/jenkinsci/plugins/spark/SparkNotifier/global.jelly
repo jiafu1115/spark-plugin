@@ -18,10 +18,10 @@
           <f:entry title="Name"  >
             <f:textbox name="spark.room.name" value="${sparkRoom.name}" checkUrl="'${rootURL}/descriptor/SparkNotifier/nameCheck?name='+escape(this.value)"/>
           </f:entry>
-          <f:entry title="Room ID"  >
+          <f:entry title="Room ID" field="roomid" >
             <f:textbox name="spark.room.roomid" value="${sparkRoom.roomid}" checkUrl="'${rootURL}/descriptor/SparkNotifier/sparkRoomIdCheck?sparkRoomId='+escape(this.value)"/>
           </f:entry>
-          <f:entry title="Bearer Token"  >
+          <f:entry title="Bearer Token" field="token" >
             <input class="setting-input" name="spark.room.token" type="password" value="${sparkRoom.token}" checkUrl="'${rootURL}/descriptor/SparkNotifier/tokenCheck?token='+escape(this.value)"/>
           </f:entry>
           <f:entry title="">
