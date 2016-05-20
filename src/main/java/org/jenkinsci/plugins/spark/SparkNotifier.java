@@ -163,7 +163,7 @@ public class SparkNotifier extends Notifier {
 		Object[] items = changeSet.getItems();
 		if(items.length > 0){
 		    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]changes:");
-			SparkClient.sent(sparkRoom, "[changes:]");
+			SparkClient.sent(sparkRoom, "[changes]");
 		}
 		for(Object entry:items){
 	    	ChangeLogSet.Entry entryCasted = (ChangeLogSet.Entry)entry;
@@ -185,7 +185,7 @@ public class SparkNotifier extends Notifier {
 			AbstractTestResultAction testResultAction = build.getAction(AbstractTestResultAction.class);
 			if(testResultAction!=null){
 			    logger.println(CISCO_SPARK_PLUGIN_NAME + "[Publish Content]test results:");
-				SparkClient.sent(sparkRoom, "[test results:]");
+				SparkClient.sent(sparkRoom, "[test results]");
 				int totalCount = testResultAction.getTotalCount();
 				int failCount = testResultAction.getFailCount();
 				int skipCount = testResultAction.getSkipCount();
